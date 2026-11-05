@@ -105,7 +105,6 @@ h1.xl{font-size:176px;line-height:.92}
 .team .card h3{font-size:52px;margin:0 0 6px}
 .team .card p{font-size:24px;line-height:1.3}
 .team-photo{display:block;width:104px;height:104px;border-radius:50%;object-fit:cover;border:3px solid var(--g900);margin:0;flex:none}
-.team-initial{display:flex;align-items:center;justify-content:center;background:var(--cyan-900);color:var(--cream-100);font-family:var(--display);font-size:56px;line-height:1}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:64px}
 .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:40px}
 .arrow{font-size:72px;color:var(--cyan-700);align-self:center;padding:0 18px;font-family:var(--display)}
@@ -568,9 +567,9 @@ const SLIDES = [
       ];
       return `
       ${H('How it works')}
-      <div class="video-box rv missing" data-video style="position:relative;width:1040px;height:585px;margin-top:22px;border-radius:16px">
-        <video playsinline style="width:100%;height:100%;object-fit:cover"></video>
-        <div class="ph">Prototype demo video: public version in preparation</div>      </div>
+      <div class="video-box rv" data-video style="position:relative;width:1040px;height:585px;margin-top:22px;border-radius:16px">
+        <video src="assets/demo-androi.mp4" controls preload="metadata" playsinline style="width:100%;height:100%;object-fit:cover"></video>
+        <div class="ph">Demo video not found: assets/demo-androi.mp4</div>      </div>
       <div class="steps compact" style="margin-top:22px">${steps.map((it, i) => (i ? '<div class="arrow rv">→</div>' : '') +
         `<div class="step rv${it.solar ? ' solar' : ''}"><div class="step-head"><div class="step-n">${i + 1}</div><div class="step-t">${it.t}</div>${I(it.ic)}</div><div class="step-s">${it.s}</div></div>`).join('')}</div>`;
     },
@@ -641,7 +640,7 @@ const SLIDES = [
           <div class="stat rv" style="padding:18px 26px"><b data-count="${d.traction.engagements}" data-dec="0" style="font-size:100px">${d.traction.engagements}</b><div style="font-size:26px;color:var(--g700);margin-top:14px;line-height:1.3">paid engagements delivered in 2026: a diagnosis, training and a custom system</div></div>
         </div>
         <div class="card rv" style="margin-top:22px;padding:18px 28px;display:flex;align-items:center;gap:36px">
-          
+          <img src="assets/selo-favikon-top-voices.png" alt="Favikon badge: Portugal's Top 200 LinkedIn Voices, 2026" style="height:300px;width:auto;flex:none">
           <div style="flex:1;min-width:0">
           <div class="label" style="font-size:22px">Built over the last 12 months on Pedro's <span class="hl solar">LinkedIn profile</span></div>
           <div style="display:flex;gap:44px;margin-top:10px">
@@ -702,9 +701,9 @@ const SLIDES = [
       ${H('Team')}
       <h1 class="long rv">Team, and the gap we are closing.</h1>
       <div class="grid3 team" style="margin-top:20px">
-        <div class="card rv"><span class="team-photo team-initial" aria-hidden="true">P</span><div><h3>Pedro</h3><p>Marketing and sales.</p></div></div>
-        <div class="card rv"><span class="team-photo team-initial" aria-hidden="true">A</span><div><h3>Arthur</h3><p>Delivery, back-office, project management and HR.</p></div></div>
-        <div class="card rv"><span class="team-photo team-initial" aria-hidden="true">G</span><div><h3>Guilherme</h3><p>Infrastructure, security and data. Part-time.</p></div></div>
+        <div class="card rv"><img class="team-photo" src="assets/team-pedro.jpg" alt="Pedro"><div><h3>Pedro</h3><p>Marketing and sales.</p></div></div>
+        <div class="card rv"><img class="team-photo" src="assets/team-arthur.jpg?v=2" alt="Arthur"><div><h3>Arthur</h3><p>Delivery, back-office, project management and HR.</p></div></div>
+        <div class="card rv"><img class="team-photo" src="assets/team-guilherme.jpg?v=2" alt="Guilherme"><div><h3>Guilherme</h3><p>Infrastructure, security and data. Part-time.</p></div></div>
       </div>
       <p class="label rv" style="text-align:center;margin:14px 0 0">We all build agentic systems together.</p>
       <div style="display:flex;align-items:center;gap:40px;margin-top:18px;flex:1;min-height:0">
