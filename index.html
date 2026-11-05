@@ -1,0 +1,917 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Atomica — Web Summit pitch (10 slides)</title>
+<style>
+@font-face{font-family:"Bebas Neue";src:url("assets/fonts/BebasNeue-Regular.ttf") format("truetype");font-display:block}
+@font-face{font-family:"Oswald";src:url("assets/fonts/Oswald-VariableFont_wght.ttf") format("truetype");font-weight:200 700;font-display:block}
+@font-face{font-family:"Jost";src:url("assets/fonts/Jost-VariableFont_wght.ttf") format("truetype");font-weight:100 900;font-display:block}
+:root{
+  --cream-100:#FCF9F2; --cream-300:#E5DBC7;
+  --g900:#1B1B1B; --g700:#3D3D3D; --g500:#686868; --g300:#A9A9A9;
+  --cyan-900:#005F64; --cyan-700:#008C94; --cyan-500:#67BBC0; --cyan-100:#E0F2F3;
+  --yellow-500:#FCCA29; --yellow-100:#FEF8E4;
+  --red-700:#D1283F; --red-500:#FF304C;
+  --pulp:#F7EED7;            /* pulp cream: average tone of the official pulp texture (branding-assets) */
+  --paper:#FBF6E9;           /* cards and panels */
+  --solar:#FCCA29;           /* solar yellow: details and highlights only */
+  --display:"Bebas Neue","Oswald","Impact",sans-serif;
+  --label:"Oswald","Arial Narrow",sans-serif;
+  --text:"Jost","Segoe UI",Arial,sans-serif;
+  --ease:cubic-bezier(.2,.7,.2,1);
+  --ease-out:cubic-bezier(.16,1,.3,1);
+  --grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .1  0 0 0 0 .1  0 0 0 0 .1  0 0 0 .09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--g900);overflow:hidden;font-family:var(--text);color:var(--g900)}
+#viewport{position:fixed;inset:0;display:flex;align-items:center;justify-content:center}
+#stage{width:1920px;height:1080px;position:relative;flex:none;transform-origin:center center}
+
+/* ---------- slide frame ---------- */
+.slide{position:absolute;inset:0;background-color:var(--pulp);background-image:var(--grain);padding:150px 150px 130px;display:flex;flex-direction:column;overflow:hidden;
+  opacity:0;visibility:hidden;transition:opacity .6s var(--ease),visibility 0s linear .6s}
+.slide.active{opacity:1;visibility:visible;transition:opacity .6s var(--ease),visibility 0s}
+.slide.paper{background-image:linear-gradient(rgba(247,238,215,.3),rgba(247,238,215,.3)),url("assets/pulp-paper.png");background-size:auto,cover;background-position:center}
+/* progress bar: liquid fill with the same effect as the LP metric bars (fill on arrival, sheen, flowing current, Cherenkov pulse, meniscus at the front) */
+.bar{position:absolute;top:0;left:0;height:12px;width:0;border-radius:0 999px 999px 0;
+  background:linear-gradient(180deg,rgba(255,255,255,.30) 0%,rgba(255,255,255,.07) 40%,rgba(0,0,0,.06) 100%),
+    linear-gradient(90deg,var(--cyan-700) 0%,var(--cyan-500) 52%,#b8ecee 100%);
+  transition:width .82s var(--ease-out);animation:cherenkov-pulse 3.2s ease-in-out infinite}
+.slide.active .bar{width:var(--w)}
+.bar::before{content:"";position:absolute;inset:0;border-radius:inherit;
+  background:repeating-linear-gradient(100deg,transparent 0px,rgba(255,255,255,.09) 4px,transparent 9px,rgba(0,0,0,.04) 13px,transparent 18px);
+  background-size:36px 100%;animation:liquid-flow 2s linear infinite}
+.bar::after{content:"";position:absolute;right:0;top:-1px;bottom:-1px;width:22px;border-radius:0 999px 999px 0;
+  background:linear-gradient(90deg,rgba(218,248,249,0) 0%,rgba(218,248,249,.55) 100%);opacity:0;transition:opacity .2s ease}
+.slide.active .bar::after{opacity:1;transition-delay:.6s}
+.slide:not(.active) .bar,.slide:not(.active) .bar::before{animation-play-state:paused}
+@keyframes cherenkov-pulse{
+  0%,100%{box-shadow:0 0 3px rgba(103,187,192,.50),0 0 8px rgba(103,187,192,.25),0 0 16px rgba(103,187,192,.10);filter:brightness(1)}
+  50%{box-shadow:0 0 5px rgba(168,222,224,.80),0 0 13px rgba(103,187,192,.60),0 0 26px rgba(103,187,192,.32),0 0 44px rgba(103,187,192,.14);filter:brightness(1.15)}
+}
+@keyframes liquid-flow{from{background-position:0 0}to{background-position:36px 0}}
+.brand{position:absolute;top:44px;left:150px;display:flex;align-items:center;gap:16px;font-family:var(--display);font-size:44px;letter-spacing:.14em;color:var(--g900);line-height:1}
+.brand .mark{width:52px;height:52px;object-fit:contain}
+.counter{position:absolute;top:52px;right:150px;font-size:26px;color:var(--g500);letter-spacing:.08em;font-variant-numeric:tabular-nums}
+.foot{position:absolute;left:150px;right:150px;bottom:48px;font-size:24px;color:var(--g500);display:flex;justify-content:space-between}
+
+/* ---------- motion: reveal (stagger set by JS in --d) ---------- */
+.rv{opacity:0;transform:translateY(22px);transition:opacity .7s var(--ease-out),transform .7s var(--ease-out);transition-delay:0ms}
+.slide.active .rv{opacity:1;transform:none;transition-delay:var(--d,0ms)}
+.arcs{position:absolute;inset:0;width:100%;height:100%;color:var(--cyan-700);opacity:.2;pointer-events:none}
+.arcs path{stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset 2.4s var(--ease) .2s}
+.slide.active .arcs path{stroke-dashoffset:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.atom.spin{animation:spin 90s linear infinite}
+.slide:not(.active) .atom.spin{animation-play-state:paused}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,48,76,.45)}50%{box-shadow:0 0 0 12px rgba(255,48,76,0)}}
+.gap-dot{width:16px;height:16px;border-radius:50%;background:var(--red-500);display:inline-block;flex:none;animation:pulse 2.6s ease-in-out infinite}
+.slide:not(.active) .gap-dot{animation-play-state:paused}
+
+/* ---------- typography ---------- */
+.hdr{display:flex;align-items:center;gap:22px;font-family:var(--label);font-size:28px;letter-spacing:.18em;text-transform:uppercase;color:var(--cyan-900);font-weight:500}
+.hdr .tick{width:14px;height:14px;border-radius:50%;background:var(--solar);box-shadow:0 0 0 6px rgba(252,202,41,.28);flex:none}
+.hdr .ln{height:25px;width:0;overflow:hidden;background:url("assets/divider-node-line.png") left center/200px 25px no-repeat;transition:width 1.1s var(--ease) .35s}
+.slide.active .hdr .ln{width:200px}
+h1{font-family:var(--display);font-weight:400;text-transform:uppercase;letter-spacing:.01em;line-height:.98;font-size:124px;margin:26px 0 0;max-width:1560px}
+h1.long{font-size:100px}
+h1.xl{font-size:176px;line-height:.92}
+.hl{background:linear-gradient(var(--cyan-500),var(--cyan-500)) no-repeat 0 0 / 0% 100%;padding:0 16px;box-decoration-break:clone;-webkit-box-decoration-break:clone;transition:background-size 1s var(--ease) .7s}
+.slide.active .hl{background-size:100% 100%}
+.hl.solar{background-image:linear-gradient(var(--solar),var(--solar))}
+.sub{font-size:40px;line-height:1.35;color:var(--g700);margin:36px 0 0;max-width:1300px}
+.body{font-size:34px;line-height:1.35;color:var(--g700)}
+.label{font-size:26px;letter-spacing:.12em;text-transform:uppercase;color:var(--g500);font-weight:600}
+.tag{display:inline-block;background:var(--yellow-500);color:var(--g900);padding:10px 20px;font-size:26px;font-weight:600;letter-spacing:.04em;border-radius:999px}
+.tag-bar{margin-top:30px;display:inline-block;align-self:flex-start;background:var(--yellow-100);border:2px solid var(--yellow-500);padding:12px 22px;font-size:28px;border-radius:14px;color:var(--g900)}
+.muted{color:var(--g500)}
+.prod{font-family:Georgia,"Times New Roman",serif;font-weight:400;font-style:normal;text-transform:none;letter-spacing:0;font-size:.95em}
+.prod b{font-weight:700}
+.prod i{font-style:italic}
+.prodline{font-size:34px;color:var(--g700);margin:26px 0 0}
+.mk{background:linear-gradient(var(--solar),var(--solar)) no-repeat 0 88% / 0% 36%;padding:0 4px;box-decoration-break:clone;-webkit-box-decoration-break:clone;transition:background-size .9s var(--ease) var(--mk-d,1s)}
+.slide.active .mk{background-size:100% 36%}
+
+/* ---------- cards, stats, chips ---------- */
+.card{background:var(--paper);border:2px solid var(--cream-300);border-radius:28px;padding:44px 48px}
+.card.hi{background-color:var(--cyan-100);background-image:radial-gradient(rgba(27,27,27,.09) 1.2px,transparent 1.4px);background-size:16px 16px;border-color:var(--cyan-500)}
+.card h3{font-family:var(--display);font-weight:400;text-transform:uppercase;font-size:64px;margin:0 0 14px;letter-spacing:.02em;line-height:1;display:flex;align-items:center;gap:18px}
+.card p{font-size:32px;line-height:1.35;color:var(--g700);margin:0}
+.card .src{font-size:22px;color:var(--g500);margin-top:18px;line-height:1.3}
+/* team (slide 9): photo on the left, name and role on the right, so the team and the architecture share one slide */
+.team .card{display:flex;align-items:center;gap:24px;padding:20px 28px}
+.team .card h3{font-size:52px;margin:0 0 6px}
+.team .card p{font-size:24px;line-height:1.3}
+.team-photo{display:block;width:104px;height:104px;border-radius:50%;object-fit:cover;border:3px solid var(--g900);margin:0;flex:none}
+.team-initial{display:flex;align-items:center;justify-content:center;background:var(--cyan-900);color:var(--cream-100);font-family:var(--display);font-size:56px;line-height:1}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:64px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:40px}
+.arrow{font-size:72px;color:var(--cyan-700);align-self:center;padding:0 18px;font-family:var(--display)}
+.steps{display:flex;align-items:stretch;gap:0;margin-top:20px}
+.step{flex:1;background:var(--paper);border:2px solid var(--cream-300);border-radius:28px;padding:34px 34px 38px;min-height:0;position:relative}
+.step.dashed{border-style:dashed;border-color:var(--g300);background:transparent}
+.step.solar{border-color:var(--solar);border-width:3px}
+.step-n{width:64px;height:64px;border-radius:50%;background:var(--cyan-500);color:var(--g900);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:42px;line-height:1;flex:none}
+.step.solar .step-n{background:var(--solar)}
+.step.dashed .step-n{background:transparent;border:2px solid var(--g300);color:var(--g500)}
+.step-t{font-family:var(--display);text-transform:uppercase;font-size:68px;line-height:.98;margin-top:26px;font-weight:400;letter-spacing:.01em}
+.steps .step-t:not(.num){font-size:58px}
+.step-t.num{font-size:170px;line-height:.9;letter-spacing:.005em;font-variant-numeric:tabular-nums}
+.step-s{font-size:28px;line-height:1.35;color:var(--g700);margin-top:18px}
+.est{position:absolute;top:28px;right:30px;font-size:22px;letter-spacing:.12em;text-transform:uppercase;color:var(--cyan-900);border:2px solid var(--cyan-500);border-radius:999px;padding:6px 14px}
+.stat{background:var(--paper);border:2px solid var(--cream-300);border-radius:28px;padding:44px 48px;flex:1}
+.stat.hi{background-color:var(--cyan-100);background-image:radial-gradient(rgba(27,27,27,.09) 1.2px,transparent 1.4px);background-size:16px 16px;border-color:var(--cyan-500)}
+.stat b{display:block;font-family:var(--display);font-size:250px;font-weight:400;line-height:.9;letter-spacing:.01em;font-variant-numeric:tabular-nums}
+.stat span{display:block;font-size:32px;color:var(--g700);margin-top:18px;line-height:1.3}
+.stats{display:flex;gap:40px;margin-top:20px;flex:1}
+.bigstat{font-family:var(--display);font-size:200px;line-height:.9;font-variant-numeric:tabular-nums}
+.quote-list{margin:0;padding:0;list-style:none}
+.quote-list li{font-size:36px;line-height:1.3;color:var(--g700);padding:26px 0;border-bottom:2px solid var(--cream-300)}
+.quote-list.compact li{font-size:32px;line-height:1.2;padding:10px 0}
+.quote-list li:first-child{padding-top:0}
+.quote-list li:last-child{border-bottom:none}
+.cols-decision{display:grid;grid-template-columns:1fr 150px 1.25fr;align-items:center;margin-top:40px;gap:20px}
+.cols-decision .head{font-family:var(--display);font-size:80px;text-transform:uppercase;font-weight:400;margin-bottom:20px;line-height:1;letter-spacing:.01em}
+.cols-decision .head.sm{font-size:64px}
+.cols-decision li{font-size:40px;line-height:1.3;margin:18px 0;color:var(--g700)}
+.cols-decision ul{margin:0;padding:0;list-style:none}
+.flow{width:120px;height:60px;flex:none;overflow:visible;color:var(--cyan-700);justify-self:center}
+.flow path{stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset .9s var(--ease) .7s}
+.flow-stack{display:flex;flex-direction:column;align-items:center;gap:24px;justify-self:center}
+.flow-logo{display:block;width:120px;height:auto}
+.slide.active .flow path{stroke-dashoffset:0}
+.chips{display:flex;gap:18px;flex-wrap:wrap}
+.chip{background:var(--paper);border:2px solid var(--cream-300);border-radius:999px;padding:14px 26px;font-size:30px;color:var(--g900);font-family:var(--label);letter-spacing:.06em;text-transform:uppercase}
+.chip.solar{background:var(--solar);border-color:var(--solar)}
+.ask-q{font-size:32px;line-height:1.4;color:var(--g700);margin:18px 0 0;padding-left:0}
+.ask-q li{margin:10px 0}
+
+/* ---------- gap (slide 2): asked vs. able to prove ---------- */
+.gapcard{background:var(--paper);border:2px solid var(--cream-300);border-radius:24px;padding:12px 40px;margin-top:14px}
+.gaprow{display:grid;grid-template-columns:1fr 120px;align-items:center;gap:6px 24px;margin-top:6px}
+.gaprow + .gaprow{margin-top:4px}
+.gaprow .lbl{font-size:28px;color:var(--g700);line-height:1.2}
+.gaprow .val{font-family:var(--display);font-size:56px;line-height:1;text-align:right;font-variant-numeric:tabular-nums}
+.track{grid-column:1 / 3;height:26px;background:var(--cream-300);border-radius:999px;overflow:hidden}
+.fill{height:100%;width:0;border-radius:999px;transition:width 1.4s var(--ease-out) var(--fd,.5s)}
+.slide.active .fill{width:var(--w)}
+.fill.a{background:var(--cyan-500)}
+.fill.b{background:var(--solar)}
+.gapnote{font-family:var(--label);font-size:26px;letter-spacing:.1em;text-transform:uppercase;color:var(--cyan-900);margin-bottom:4px}
+.gapnote b{font-weight:600;color:var(--g900)}
+/* dimension line between the two gap bars: 16% to 86% of the track width, labelled with the gap */
+.gapruler{position:relative;height:34px;margin-top:2px}
+.gapruler::before{content:"";position:absolute;left:16%;width:70%;top:50%;border-top:2px solid var(--g900)}
+.gapruler i{position:absolute;top:calc(50% - 9px);width:2px;height:18px;background:var(--g900);transform:translateX(-50%)}
+.gapruler span{position:absolute;left:51%;top:50%;transform:translate(-50%,-50%);padding:0 14px;background:var(--paper);font-family:var(--label);font-size:24px;letter-spacing:.1em;text-transform:uppercase;color:var(--g900);font-weight:600;white-space:nowrap}
+
+/* ---------- today bracket (product slide) ---------- */
+.today{position:absolute;left:150px;top:436px;height:14px;width:0;border:3px solid var(--solar);border-bottom:none;transition:width 1.1s var(--ease) 1.1s}
+.slide.active .today{width:1187px}
+.today-tag{position:absolute;left:150px;top:404px;background:var(--solar);color:var(--g900);font-family:var(--label);font-size:24px;letter-spacing:.12em;text-transform:uppercase;padding:6px 16px;border-radius:999px;opacity:0;transition:opacity .6s var(--ease) 1.9s}
+.slide.active .today-tag{opacity:1}
+
+/* ---------- stacked bar (target slide) ---------- */
+.stack{display:flex;width:100%;height:150px;border-radius:16px;overflow:hidden;margin-top:40px;border:2px solid var(--g900)}
+.seg{height:100%;width:0;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:56px;color:var(--g900);white-space:nowrap;overflow:hidden;transition:width 1.1s var(--ease-out) var(--sd,0s)}
+.slide.active .seg{width:var(--w)}
+.seg.taxes{background:var(--g700);color:var(--cream-100)}
+.seg.partners{background:var(--cyan-500)}
+.seg.costs{background:var(--g300)}
+.seg.reinvest{background:var(--solar)}
+.legend{display:flex;gap:30px;margin-top:28px;font-size:30px;color:var(--g700);flex-wrap:wrap}
+.legend span{display:flex;align-items:center;gap:14px}
+.legend i{width:26px;height:26px;border-radius:6px;display:inline-block;border:2px solid var(--g900)}
+
+/* ---------- prototype: video + the same three steps as slide 4 ---------- */
+.flowdemo{display:grid;grid-template-columns:900px 1fr;gap:56px;margin-top:34px;min-height:0}
+.video-box{position:relative;background:var(--g900);border-radius:24px;overflow:hidden;width:900px;height:506px;box-shadow:0 30px 60px -30px rgba(0,95,100,.35)}
+.video-box video{width:100%;height:100%;display:block;background:var(--g900)}
+.video-box .ph{display:none;position:absolute;inset:0;align-items:center;justify-content:center;color:var(--cream-100);font-size:30px;text-align:center;padding:40px;line-height:1.3}
+.video-box.missing video{display:none}
+.video-box.missing .ph{display:flex}
+.flowlist{display:flex;flex-direction:column;gap:18px}
+.fstep{display:grid;grid-template-columns:56px 1fr 170px;gap:18px;align-items:center;background:var(--paper);border:2px solid var(--cream-300);border-radius:22px;padding:14px 20px}
+.fstep.solar{border-color:var(--solar);border-width:3px}
+.fstep .step-n{width:56px;height:56px;font-size:36px}
+.fstep.solar .step-n{background:var(--solar)}
+.ftxt b{display:block;font-family:var(--display);font-weight:400;font-size:42px;text-transform:uppercase;line-height:1;letter-spacing:.01em}
+.ftxt span{display:block;font-size:24px;color:var(--g700);margin-top:8px;line-height:1.3}
+.fstep figure{margin:0;height:120px;border-radius:12px;overflow:hidden;background:var(--cream-100);border:2px dashed var(--g300);display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--g500)}
+.fstep img{width:100%;height:100%;object-fit:cover}
+.fstep .ft{font-size:22px;color:var(--cyan-900);margin-top:6px;font-family:var(--label);letter-spacing:.06em;text-transform:uppercase}
+
+/* ---------- where the data sits (slide 3) ---------- */
+.sources{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;margin-top:12px}
+.srcc{background:var(--paper);border:2px solid var(--cream-300);border-radius:22px;padding:14px 22px}
+.srcc b{display:block;font-family:var(--display);font-weight:400;font-size:44px;text-transform:uppercase;line-height:1}
+.srcc span{display:block;font-size:23px;color:var(--g700);margin-top:6px;line-height:1.25}
+.srcc.solar{border-color:var(--solar);border-width:3px}
+
+/* ---------- product layers (slide 9): service on top, product as the base ---------- */
+.layers{display:flex;flex-direction:column;max-width:1500px;margin-top:40px}
+.layer{border-radius:28px;padding:30px 44px;border:2px solid var(--cream-300);background:var(--paper)}
+.layer.service{border-color:var(--solar);border-width:3px}
+.layer.product{background-color:var(--cyan-100);background-image:radial-gradient(rgba(27,27,27,.09) 1.2px,transparent 1.4px);background-size:16px 16px;border-color:var(--cyan-500)}
+.layer-tag{font-family:var(--label);font-size:26px;letter-spacing:.12em;text-transform:uppercase;color:var(--cyan-900)}
+.layer-row{display:flex;gap:18px;margin-top:18px}
+.lstep{flex:1;background:var(--cream-100);border:2px solid var(--cream-300);border-radius:999px;padding:12px 24px;font-family:var(--display);font-size:50px;line-height:1.05;text-transform:uppercase;text-align:center}
+.layer-s{font-size:30px;line-height:1.3;color:var(--g700);margin-top:16px}
+.layer-join{width:4px;height:34px;background:var(--g700);margin:0 auto;border-radius:2px}
+.architecture-img{display:block;width:100%;height:700px;object-fit:contain;object-position:left top;margin-top:10px}
+
+/* ---------- icons (slides 3, 4, 5, 10), funnel (slide 6), 2027 path (slide 10) ---------- */
+.ico{width:56px;height:56px;flex:none;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;color:var(--cyan-900);display:block}
+.card h3 .ico{width:66px;height:66px}
+.srci{margin-bottom:10px}
+.srci .ico{width:60px;height:60px}
+.srcc.solar .ico{color:var(--g900)}
+.step-top{display:flex;align-items:center;justify-content:space-between}
+.step-ic .ico{width:80px;height:80px}
+.lstep{display:flex;align-items:center;justify-content:center;gap:18px}
+.lstep .ico{width:56px;height:56px}
+.stack.sm .seg{font-size:38px}
+.funnel{display:grid;grid-template-columns:1fr 760px;gap:60px;margin-top:36px;align-items:center}
+.fcol{display:flex;flex-direction:column;gap:16px;align-items:center}
+.fbar{width:var(--fw);height:136px;border-radius:24px;display:flex;align-items:center;justify-content:center;background:var(--paper);border:2px solid var(--cream-300);font-family:var(--display);font-size:118px;line-height:1;font-variant-numeric:tabular-nums}
+.fbar.f2{background:var(--cyan-100);border-color:var(--cyan-500)}
+.fbar.f3{background:var(--solar);border-color:var(--solar)}
+.flabs{display:flex;flex-direction:column;gap:16px}
+.flab{height:136px;display:flex;flex-direction:column;justify-content:center}
+.flab span:not(.fest){font-size:32px;line-height:1.3;color:var(--g700)}
+.fest{align-self:flex-start;font-size:22px;letter-spacing:.12em;text-transform:uppercase;color:var(--cyan-900);border:2px solid var(--cyan-500);border-radius:999px;padding:6px 14px;margin-bottom:8px}
+.s12{display:grid;grid-template-columns:1fr 1fr;gap:70px;margin-top:36px;min-height:0}
+.c27{display:flex;align-items:flex-end;gap:0;margin-top:125px;position:relative}
+.c27-col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:0 4px}
+.c27-val{font-family:var(--display);font-size:26px;line-height:1;color:var(--g700);margin-bottom:8px;white-space:nowrap}
+.c27-stack{width:100%;max-width:54px;display:flex;flex-direction:column;border-radius:8px 8px 0 0;border:2px solid var(--g900);border-bottom:none}
+.c27-r{background:var(--red-700);flex:none}
+.c27-s{background:var(--cyan-900);flex:1}
+.c27-m{font-size:22px;color:var(--g700);margin-top:10px;height:28px;line-height:28px;letter-spacing:.06em;text-transform:uppercase}
+/* parallel scenario (more resources): dashed line over the bars, drawn left to right on arrival */
+.c27-line{position:absolute;left:0;right:0;bottom:0;pointer-events:none;clip-path:inset(0 100% 0 0);transition:clip-path 1.6s var(--ease) .6s}
+.slide.active .c27-line{clip-path:inset(0 0 0 0)}
+.c27-line svg{display:block;width:100%;height:100%;overflow:visible}
+.c27-line polyline{fill:none;stroke:var(--g900);stroke-width:3;stroke-dasharray:12 9;stroke-linejoin:round}
+.c27-end{position:absolute;right:0;font-family:var(--label);font-size:22px;letter-spacing:.04em;text-transform:uppercase;color:var(--g900);white-space:nowrap;opacity:0;transition:opacity .6s var(--ease) 2.2s}
+.slide.active .c27-end{opacity:1}
+
+/* why-now bars (slide 8): grow to --h while the slide is active */
+.bar-rect{height:0;flex:none}
+.slide.active .bar-rect{height:var(--h)}
+
+/* ---------- decorative ---------- */
+.atom{position:absolute;opacity:.85;pointer-events:none;width:400px;height:400px;right:140px;bottom:130px}
+.atom.small{width:230px;height:230px;right:150px;top:auto;bottom:140px;opacity:.6}
+/* hero art: flush bottom-right, top at 150px (content margin), clear of the page counter; width follows the image ratio */
+.hero-img{position:absolute;right:0;bottom:0;height:930px;width:auto;display:block}
+/* hero on the left (slide 7): image flush left, footer and content start to its right (744px image + 60px gap) */
+.slide.hero-left .hero-img{left:0;right:auto}
+.slide.hero-left .foot{left:804px}
+/* slide 4: the three steps are compact so they stay readable under the video */
+.steps.compact{margin-top:0}
+.steps.compact .step{padding:16px 22px 18px;border-radius:22px}
+.steps.compact .step-head{display:flex;align-items:center;gap:14px}
+.steps.compact .step-head .step-n{width:44px;height:44px;font-size:30px}
+.steps.compact .step-head .step-t{margin:0;font-size:36px;line-height:1;white-space:nowrap}
+.steps.compact .step-head .ico{width:40px;height:40px;margin-left:auto}
+.steps.compact .step-s{font-size:21px;line-height:1.3;margin-top:12px}
+.steps.compact .step-s ul{margin:0;padding-left:22px}
+.steps.compact .step-s li{margin-top:6px}
+.steps.compact .step-s li:first-child{margin-top:0}
+.steps.compact .arrow{font-size:40px;padding:0 10px;align-self:center}
+/* slide 4 only: right and bottom margins halved; the top is cut too so the header sits close to the brand */
+.slide.edge-half{padding:124px 75px 65px 150px}
+.slide.edge-half .counter{right:75px}
+.slide.edge-half .foot{right:75px}
+/* compact 3-step row, used where a hero image takes the right side */
+.steps.tight .step{padding:26px 24px 30px}
+.steps.tight .arrow{font-size:56px;padding:0 10px}
+.steps.tight .step-t:not(.num){font-size:44px}
+.steps.tight .step-s{font-size:24px}
+.steps.tight .step-s ul{margin:0;padding-left:28px}
+.steps.tight .step-s li{margin-top:10px}
+.steps.tight .step-s li:first-child{margin-top:0}
+
+/* ---------- UI overlays ---------- */
+#help{position:fixed;inset:0;background:rgba(27,27,27,.92);color:var(--cream-100);display:none;align-items:center;justify-content:center;z-index:50;font-size:30px;line-height:1.7}
+#help.show{display:flex}
+#help div{max-width:900px}
+#help kbd{font-family:var(--display);background:var(--cyan-500);color:var(--g900);padding:2px 12px;border-radius:8px;margin-right:10px}
+
+#pres{display:none;position:fixed;inset:0;background:var(--pulp);color:var(--g900);padding:36px 48px;z-index:40;font-family:var(--text);grid-template-rows:auto 1fr;gap:24px}
+body.presenter #viewport{display:none}
+body.presenter #pres{display:grid}
+body.presenter-overlay #pres{display:grid}
+#pres header{display:flex;gap:40px;align-items:center;font-size:30px;color:var(--g700)}
+#pres header b{font-family:var(--display);font-weight:400;color:var(--g900)}
+#p-timer.warn{color:var(--g900);background:var(--yellow-500);padding:0 12px;border-radius:8px}
+#p-timer.late{color:var(--cream-100);background:var(--red-700);padding:0 12px;border-radius:8px}
+.p-main{display:grid;grid-template-columns:1fr 520px;gap:48px;min-height:0}
+.p-now{min-height:0;display:flex;flex-direction:column;overflow:hidden}
+#p-title{font-family:var(--display);text-transform:uppercase;font-size:88px;line-height:.98;margin:12px 0 22px;font-weight:400}
+#p-notes{font-size:30px;line-height:1.45;color:var(--g900);white-space:pre-wrap;overflow:auto;flex:1;min-height:0;padding-right:20px}
+#p-pres{font-size:24px;line-height:1.4;color:var(--g500);border-top:2px solid var(--cream-300);padding-top:16px;margin-top:16px}
+.p-next{background:var(--cyan-100);border:2px solid var(--cyan-500);border-radius:24px;padding:36px;align-self:start}
+#p-next{font-family:var(--display);font-size:60px;text-transform:uppercase;line-height:1;margin-top:14px}
+
+@media print{
+  @page{size:1920px 1080px;margin:0}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact;animation:none!important;transition:none!important}
+  html,body{background:#fff;overflow:visible;height:auto}
+  #viewport{position:static;display:block}
+  #stage{transform:none!important;width:1920px;height:auto}
+  .slide{display:flex!important;position:relative;inset:auto;width:1920px;height:1080px;opacity:1!important;visibility:visible!important;page-break-after:always;break-after:page}
+  .rv{opacity:1!important;transform:none!important}
+  .hl{background-size:100% 100%!important}
+  .mk{background-size:100% 36%!important}
+  .fill{width:var(--w)!important}
+  .seg{width:var(--w)!important}
+  .bar{width:var(--w)!important}
+  .arcs path,.draw ellipse,.flow path{stroke-dashoffset:0!important}
+  .hdr .ln{width:200px!important}
+  .today{width:1187px!important}
+  .today-tag{opacity:1!important}
+  #pres,#help{display:none!important}
+}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{transition-duration:0s!important;transition-delay:0s!important;animation:none!important}
+  .rv{opacity:1;transform:none}
+  .arcs path,.flow path{stroke-dashoffset:0}
+}
+</style>
+</head>
+<body>
+
+<div id="viewport"><div id="stage"></div></div>
+
+<div id="pres" aria-live="polite">
+  <header>
+    <span><b id="p-count"></b></span>
+    <span id="p-clock"></span>
+    <span id="p-timer">0:00</span>
+    <span id="p-plan"></span>
+    <span class="muted" style="margin-left:auto">R reset timer · ← → navigate</span>
+  </header>
+  <div class="p-main">
+    <section class="p-now">
+      <div class="label" id="p-kicker"></div>
+      <h2 id="p-title"></h2>
+      <div id="p-notes"></div>
+      <div id="p-pres"></div>
+    </section>
+    <aside class="p-next">
+      <div class="label">Next</div>
+      <div id="p-next"></div>
+    </aside>
+  </div>
+</div>
+
+<div id="help" onclick="this.classList.remove('show')">
+  <div>
+    <kbd>→</kbd><kbd>Space</kbd> next slide · <kbd>←</kbd> previous<br>
+    <kbd>Home</kbd><kbd>End</kbd> first / last · <kbd>1</kbd>…<kbd>10</kbd> then <kbd>Enter</kbd> jump<br>
+    <kbd>F</kbd> full screen · <kbd>S</kbd> presenter view (notes and timer) · <kbd>P</kbd> print to PDF<br>
+    <kbd>Space</kbd> on slide 4 plays or pauses the demo video<br>
+    <kbd>?</kbd> this help (click to close)
+  </div>
+</div>
+
+<script>
+/* =====================================================================
+   DATA — update here before the call. Everything on the slides reads from this object.
+   ===================================================================== */
+const DATA = {
+  companyName: 'Atomica',
+  productName: 'AndROI',
+  interviews: { documented: 4 },                // footer ressalva only (n = 4, hypotheses)
+  traction: {
+    receivedEur: 4.7,
+    engagements: 3                              // paid engagements delivered in 2026 (diagnosis, training, custom system); names withheld
+  },
+  audience: {
+    followers: '17k',
+    impressions: '~1M',
+    engagements: '31k',
+    senior: 37, saoPauloRioJaneiro: 30, marketing: 18, companies11to200: 27   // share of the audience, %; base (followers or engagers) to confirm
+  },
+  target: { billedPerMonth: 9000, somAccounts: 18, somEurYear: 106, planEurYear: 107, moreAccounts: 27, moreEurYear: 161 },   // target model, not a forecast; SOM is the provisional capacity ceiling; more* = parallel scenario with more resources (21/10)
+
+
+  split: { ss: 11, tax: 17, partners: 50, costs: 2.8, reinvest: 19.2 }
+};
+
+/* Product name: always in serif, "ROI" in bold + italic. Use PROD in slide HTML, prodify() for plain text. */
+const PROD = '<span class="prod">And<b><i>ROI</i></b></span>';
+const prodify = t => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/AndROI/g, PROD);
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const H = label => `<div class="hdr rv"><span class="tick"></span><span>${label}</span><span class="ln"></span></div>`;
+
+/* Line icons, 48×48 grid, drawn in the deck's stroke style (colour from CSS). */
+const ICON_PATHS = {
+  dashline: '<path d="M6 42h36"/><path d="M8 34l9-9 7 5 11-14 8-5" stroke-dasharray="5 4"/>',
+  user: '<circle cx="24" cy="16" r="8"/><path d="M9 42c1.5-8 7.5-12 15-12s13.5 4 15 12"/>',
+  crm: '<circle cx="18" cy="16" r="6"/><path d="M6 40c0-7 5.4-12 12-12s12 5 12 12"/><circle cx="34" cy="18" r="4.5"/><path d="M34 30c5 0 8 3.5 8 9"/>',
+  ads: '<path d="M6 19v10h6l14 8V11L12 19H6z"/><path d="M32 17c3 2 3 12 0 14"/><path d="M12 29l3 9"/>',
+  sheet: '<rect x="7" y="8" width="34" height="32" rx="3"/><path d="M7 19h34M7 29h34M20 8v32"/>',
+  memory: '<path d="M24 6a12 12 0 0 0-12 12c0 4 2 6 3 8v4h18v-4c1-2 3-4 3-8A12 12 0 0 0 24 6z"/><path d="M19 42h10"/><path d="M20.5 18.5a3.5 3.5 0 1 1 4.5 3.3c-.7.3-1 .9-1 1.7v.5"/><circle cx="24" cy="30" r="1" fill="currentColor"/>',
+  network: '<circle cx="24" cy="10" r="5"/><circle cx="10" cy="36" r="5"/><circle cx="38" cy="36" r="5"/><path d="M21 14l-8 18M27 14l8 18M15 36h18"/>',
+  evidence: '<path d="M12 6h18l8 8v28H12z"/><path d="M30 6v8h8"/><path d="M18 27l4 4 8-9"/>',
+  approve: '<circle cx="20" cy="16" r="7"/><path d="M6 40c0-8 6-13 14-13s14 5 14 13"/><path d="M31 25l4 4 8-8"/>',
+  bar: '<path d="M8 40h32"/><rect x="11" y="24" width="6" height="14"/><rect x="21" y="16" width="6" height="22"/><rect x="31" y="8" width="6" height="30"/>',
+  gauge: '<path d="M6 34a18 18 0 0 1 36 0"/><path d="M24 34l8-10"/><circle cx="24" cy="34" r="2.5" fill="currentColor"/><path d="M11 26l3 2M24 16v3M37 26l-3 2"/>',
+  shield: '<path d="M24 6l15 6v11c0 10-6.5 17-15 19C15.5 40 9 33 9 23V12z"/><path d="M18 24l4 4 8-8"/>',
+  diagnosis: '<circle cx="21" cy="21" r="12"/><path d="M30 30l11 11"/><path d="M15 22l4-4 3 3 4-5"/>',
+  setup: '<circle cx="24" cy="24" r="6"/><path d="M24 6v6M24 36v6M6 24h6M36 24h6M11.2 11.2l4.2 4.2M32.6 32.6l4.2 4.2M11.2 36.8l4.2-4.2M32.6 15.4l4.2-4.2"/>',
+  training: '<path d="M24 10L4 19l20 9 20-9z"/><path d="M12 23v10c0 2 6 5 12 5s12-3 12-5V23"/><path d="M40 19v10"/>',
+  eye: '<path d="M4 24s7-12 20-12 20 12 20 12-7 12-20 12S4 24 4 24z"/><circle cx="24" cy="24" r="6"/>',
+  people: '<circle cx="16" cy="18" r="5"/><circle cx="32" cy="18" r="5"/><circle cx="24" cy="32" r="5"/><path d="M21 21l-2 4M27 21l2 4"/>',
+  book: '<path d="M8 10c6-2 12-2 16 2 4-4 10-4 16-2v26c-6-2-12-2-16 2-4-4-10-4-16-2z"/><path d="M24 12v26"/>'
+};
+const I = name => `<svg class="ico" viewBox="0 0 48 48" aria-hidden="true">${ICON_PATHS[name]}</svg>`;
+
+
+const PATH27 = { signed: [1, 1, 1, 1.5, 1.5, 1.5, 1.5, 1.5, 1.5, 2, 2, 2], setupFee: 4500, retainerFee: 430, churn: 0.05, lag: 2 };
+/* mult scales the accounts signed each month; the parallel scenario uses moreAccounts / somAccounts (27 / 18). */
+function path2027(mult = 1) {
+  const { setupFee, retainerFee, churn, lag } = PATH27;
+  const signed = PATH27.signed.map(n => n * mult);
+  const setup = signed.map(n => n * setupFee);
+  const ret = signed.map((_, m) => signed.slice(0, Math.max(0, m - lag + 1)).reduce((sum, accounts, cohort) =>
+    sum + accounts * retainerFee * Math.pow(1 - churn, m - (cohort + lag)), 0));
+  const total = setup.map((s, i) => s + ret[i]);
+  const avg = total.reduce((a, b) => a + b, 0) / total.length;
+  return { setup, ret, total, avg };
+}
+const chart27 = () => {
+  const p = path2027(), more = path2027(DATA.target.moreAccounts / DATA.target.somAccounts), K = 1.5, M =['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const px = t => t / p.avg * 100 * K;   // one scale for the bars and the dashed line
+  const BASE = 38;                       // bars rest on a 38px month label (10px margin + 28px line)
+  const H = Math.ceil(BASE + px(Math.max(...more.total)) + 16);
+  const y = t => H - BASE - px(t);
+  const line = more.total.map((t, i) => `${(i + 0.5) * 100},${y(t).toFixed(1)}`).join(' ');
+  return `<div class="c27">${M.map((m, i) => {
+    const tot = p.total[i], rs = p.ret[i] / tot * 100;
+    const k = (tot / 1000).toFixed(1);
+    const seg = rs > 0 ? `<div class="c27-r" style="height:${rs.toFixed(1)}%"></div>` : '';
+    return `<div class="c27-col"><span class="c27-val">€${k}k</span><div class="c27-stack" style="height:${px(tot).toFixed(0)}px">${seg}<div class="c27-s"></div></div><span class="c27-m">${m}</span></div>`;
+  }).join('')}
+    <div class="c27-line" style="height:${H}px">
+      <svg viewBox="0 0 1200 ${H}" preserveAspectRatio="none" aria-hidden="true"><polyline points="${line}" vector-effect="non-scaling-stroke"/></svg>
+    </div>
+    <span class="c27-end" style="bottom:${(BASE + px(more.total[11]) + 8).toFixed(1)}px">€${DATA.target.moreEurYear}k a year</span></div>`;
+};
+
+const arcsSvg = `
+<svg class="arcs" viewBox="0 0 1920 1080" preserveAspectRatio="none" aria-hidden="true">
+  <g fill="none" stroke="currentColor" stroke-width="2">
+    <path pathLength="1" vector-effect="non-scaling-stroke" d="M0 1080 C 120 760 420 640 620 1080"/>
+    <path pathLength="1" vector-effect="non-scaling-stroke" d="M0 1080 C 180 800 520 700 760 1080"/>
+    <path pathLength="1" vector-effect="non-scaling-stroke" d="M0 1080 C 240 840 600 760 880 1080"/>
+  </g>
+</svg>`;
+
+const stepsHtml = items => items.map((it, i) =>
+  (i ? '<div class="arrow rv">→</div>' : '') +
+  `<div class="step rv${it.dashed ? ' dashed' : ''}${it.solar ? ' solar' : ''}">
+     ${it.est ? '<span class="est">estimate</span>' : ''}
+     <div class="step-top"><div class="step-n">${it.dashed ? '' : (i + 1)}</div>${it.ic ? `<span class="step-ic">${I(it.ic)}</span>` : ''}</div>
+     <div class="step-t${it.big ? ' num' : ''}"${it.count != null ? ` data-count="${it.count}" data-prefix="~" data-dec="0"` : ''}>${it.t}</div>
+     ${it.s ? `<div class="step-s">${it.s}</div>` : ''}
+   </div>`).join('');
+
+/* =====================================================================
+   SLIDES — 10 slides. Titles, visible text and notes follow 09 Falas por slide EN.md (22/10).
+   plan = planned seconds (total 555 s ≈ 9:15). src = footer line. pres = presenter-only check.
+   ===================================================================== */
+const SLIDES = [
+  {
+    kicker: 'Web Summit 2026 · Startup Programme', plan: 20, paper: true, src: 'Atomica · Startup Programme, Web Summit Lisbon 2026',
+    title: 'Marketing decisions you can defend',
+    render: d => `
+      ${arcsSvg}
+      <div style="margin-top:170px;max-width:1060px">
+        ${H('Web Summit 2026 · Startup Programme · Lisbon')}
+        <h1 class="xl rv" style="font-size:150px">Marketing decisions <span class="hl">you can defend</span></h1>
+        <p class="sub rv" style="font-size:40px;max-width:1040px">Where each number came from, how reliable it is, and who approved it.</p>
+        <p class="prodline rv">Product: ${PROD}, agentic operating system for marketing</p>
+      </div>
+      <img class="hero-img rv" src="assets/maestro-orquestra-robotica.png" alt="Retro-futurist maestro conducting a robot orchestra">`,
+    notes: `Hi, I'm Arthur, partner at Atomica. Pedro is with me for the questions. Atomica builds AndROI, an agentic operating system for marketing. We help marketing leaders walk into their next budget review with a safe budget decision.`,
+    pres: ''
+  },
+  {
+    kicker: 'The problem', plan: 55, src: 'Source: Comviva, Global CMO Survey 2026 (86%, 16%) · The CMO Survey 2026, US, n=240 and 238 (58.8%, 55.5%)',
+    title: 'Marketing leaders are asked to prove value, and struggle to show it.',
+    render: d => `
+      ${H('The problem')}
+      <h1 class="long rv">Marketing leaders are asked to prove value, and struggle to show it.</h1>
+      <div class="stats" style="flex:none;margin-top:14px">
+        <div class="stat hi rv" style="padding:12px 36px"><b data-count="58.8" data-dec="1" data-suffix="%" style="font-size:118px">58.8%</b><span style="margin-top:10px">feel pressure from the CEO to <span class="mk" style="--mk-d:1.5s">prove the value of marketing</span></span></div>
+        <div class="stat rv" style="padding:12px 36px"><b data-count="55.5" data-dec="1" data-suffix="%" style="font-size:118px">55.5%</b><span style="margin-top:10px">feel the same pressure from the CFO</span></div>
+      </div>
+      <div class="gapcard rv">
+        <div class="gapnote">Reported-rate difference</div>
+        <div class="gaprow">
+          <div class="lbl">Asked to justify AI spend by the board or C-suite</div>
+          <div class="val" data-count="86" data-dec="0" data-suffix="%">86%</div>
+          <div class="track"><div class="fill a" style="--w:86%;--fd:.6s"></div></div>
+        </div>
+        <div class="gapruler rv"><i style="left:16%"></i><i style="left:86%"></i><span>70 percentage points</span></div>
+        <div class="gaprow">
+          <div class="track" style="grid-row:1"><div class="fill b" style="--w:16%;--fd:1.3s"></div></div>
+          <div class="lbl" style="grid-row:2;grid-column:1">Confident defending it with clear business evidence</div>
+          <div class="val" style="grid-row:2;grid-column:2" data-count="16" data-dec="0" data-suffix="%">16%</div>
+        </div>
+      </div>`,
+    notes: `In a 2026 US survey, 58.8% of marketing leaders feel pressure from the CEO to prove marketing's value. 55.5% feel the same from the CFO. That survey is from the US. We don't claim it for Brazil, though Brazilian leaders told us in interviews it's a real pain. Comviva's Global CMO Survey 2026: 86% of marketing leaders were asked to justify AI spend. Separately, 16% feel confident defending their budgets with clear business evidence. The gap between those two rates is 70 percentage points. That is the problem we work on.`,
+    pres: ''
+  },
+  {
+    kicker: 'The shift', plan: 45, src: '',
+    title: 'From activity dashboards to decisions with provenance.',
+    render: d => `
+      ${H('The shift')}
+      <h1 class="long rv">From activity dashboards to decisions with provenance.</h1>
+      <div class="label rv" style="margin-top:22px">Where the data usually sits</div>
+      <div class="sources">
+        <div class="srcc rv"><div class="srci">${I('crm')}</div><b>CRM</b><span>Leads, deals and the pipeline</span></div>
+        <div class="srcc rv"><div class="srci">${I('ads')}</div><b>Ad platforms</b><span>Spend, clicks and conversions</span></div>
+        <div class="srcc rv"><div class="srci">${I('sheet')}</div><b>Spreadsheets</b><span>Budgets, reports and manual models</span></div>
+        <div class="srcc solar rv"><div class="srci">${I('memory')}</div><b>Someone's memory</b><span>What the team knows and nobody wrote down</span></div>
+      </div>
+      <div class="cols-decision" style="margin-top:12px">
+        <div class="card rv" style="padding:20px 40px">
+          <div class="head muted" style="font-size:52px;margin-bottom:8px">Activity</div>
+          <ul><li style="font-size:30px;margin:3px 0">Views</li><li style="font-size:30px;margin:3px 0">Clicks</li><li style="font-size:30px;margin:3px 0">Leads</li></ul>
+        </div>
+        <div class="flow-stack rv"><svg class="flow" viewBox="0 0 120 60" aria-hidden="true"><path pathLength="1" d="M8 30 H104 M88 13 L108 30 L88 47" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg><img class="flow-logo" src="assets/atomica-logo-wordmark.png" alt="Atomica"></div>
+        <div class="card hi rv" style="padding:16px 40px">
+          <div class="head sm" style="font-size:52px;margin-bottom:8px">A safe budget decision</div>
+          <ul><li style="font-size:30px;margin:3px 0">Where the next budget goes</li><li style="font-size:30px;margin:3px 0">Its sources</li><li style="font-size:30px;margin:3px 0">A confidence level</li><li style="font-size:30px;margin:3px 0">Who approved it</li></ul>
+          <p style="font-size:30px;line-height:1.3;margin:10px 0 0">We report the results achieved, with accuracy.</p>
+        </div>
+      </div>`,
+    notes: `Most marketing reports show activity: views, clicks, leads. The data behind them sits in 4 places: the CRM, ad platforms, spreadsheets and, too often, someone's memory. A CFO needs a decision: where the next euro goes, its sources, a confidence level and who approved it. We report the results achieved, with accuracy. That is a safe budget decision. The gap between those two is where we work.`,
+    pres: ''
+  },
+  {
+    kicker: 'How it works', plan: 140, src: '', edge: true,
+    title: 'How it works.',
+    render: d => {
+      const steps = [
+        { t: 'Map the data', ic: 'network', s: `<ul><li>Connect the marketing stack to ${PROD}</li><li>See where each source lives</li></ul>` },
+        { t: 'Cross-check the data', ic: 'evidence', s: '<ul><li>Find what breaks, then clean it</li><li>One view per person and company</li><li>Every number keeps its source, date, definition and confidence level</li></ul>' },
+        { t: 'The CMO directs AndROI', ic: 'approve', s: '<ul><li>Analyze ROI and surface insights</li><li>Build dashboards, reports and board decks</li><li>Approves every recommendation</li><li>Nothing changes without human approval</li></ul>', solar: true }
+      ];
+      return `
+      ${H('How it works')}
+      <div class="video-box rv missing" data-video style="position:relative;width:1040px;height:585px;margin-top:22px;border-radius:16px">
+        <video playsinline style="width:100%;height:100%;object-fit:cover"></video>
+        <div class="ph">Prototype demo video: public version in preparation</div>      </div>
+      <div class="steps compact" style="margin-top:22px">${steps.map((it, i) => (i ? '<div class="arrow rv">→</div>' : '') +
+        `<div class="step rv${it.solar ? ' solar' : ''}"><div class="step-head"><div class="step-n">${i + 1}</div><div class="step-t">${it.t}</div>${I(it.ic)}</div><div class="step-s">${it.s}</div></div>`).join('')}</div>`;
+    },
+    notes: `Three steps. Step 1: We map where the company's data comes from, and connect the marketing stack to AndROI, our agentic operating system. Step 2: AndROI cross-checks and cleans the data, giving one view per person and company. Every number keeps its source, date, definition and confidence level. Step 3: The CMO directs AndROI and approves every recommendation. Nothing changes without human approval. With clean, connected data, the CMO can use AndROI to analyze ROI, surface insights, or build dashboards, reports and board decks. [Play the video.] This is the AndROI prototype, a plugin compatible with ChatGPT and Claude. It has not yet been tested inside either. It runs on synthetic data and is not connected to client systems. In the final version, the CMO directs AndROI to analyze ROI, surface insights and build dashboards, reports and board decks.`,
+    pres: ''
+  },
+  {
+    kicker: 'The market today', plan: 50, src: '<span style="font-size:18px;line-height:1.35">¹ Gartner, Sep 2024 (n=378, global, Apr–May 2024); 40% via eMarketer.<br>² Gartner, Feb 2025 (n=125 CEOs and CFOs, Aug–Sep 2024); 34% via MarTech (Gartner, Jan 2025).<br>³ WFA and Ebiquity, Paid Media Effectiveness Handbook, Jul 2026 (n=71); 14% via MediaPost.</span>',
+    title: 'What the market says about proving value.',
+    render: d => `
+      ${H('The market today')}
+      <h1 class="long rv">What the market says about proving value.</h1>
+      <div class="grid3" style="margin-top:38px">
+        <div class="card rv" style="padding:26px 36px">
+          <h3 style="font-size:40px;margin-bottom:4px">${I('bar')}Prove value</h3>
+          <div class="bigstat" data-count="52" data-dec="0" data-suffix="%" style="font-size:112px">52%</div>
+          <p style="font-size:26px;margin-top:12px">of senior marketing leaders say they can prove marketing's value and receive credit for its contribution to results.</p>
+          <p style="font-size:22px;margin-top:12px;color:var(--g500)">40% name the CFO as the most skeptical.<sup>1</sup></p>
+        </div>
+        <div class="card rv" style="padding:26px 36px">
+          <h3 style="font-size:40px;margin-bottom:4px">${I('gauge')}CEO and CFO view</h3>
+          <div class="bigstat" data-count="27" data-dec="0" data-suffix="%" style="font-size:112px">27%</div>
+          <p style="font-size:26px;margin-top:12px">of CEOs and CFOs say the CMO beat expectations last year.</p>
+          <p style="font-size:22px;margin-top:12px;color:var(--g500)">Only 34% agree with the CMO on how marketing supports growth.<sup>2</sup></p>
+        </div>
+        <div class="card rv" style="padding:26px 36px">
+          <h3 style="font-size:40px;margin-bottom:4px">${I('sheet')}Budget decisions</h3>
+          <div class="bigstat" data-count="15" data-dec="0" data-suffix="%" style="font-size:112px">15%</div>
+          <p style="font-size:26px;margin-top:12px">say evidence of effectiveness is the main driver of how budgets are set (paid media).</p>
+          <p style="font-size:22px;margin-top:12px;color:var(--g500)">14% say marketing and finance agree on what "effectiveness" means.<sup>3</sup></p>
+        </div>
+      </div>
+      <p class="sub rv" style="margin:28px 0 0;max-width:1500px;font-size:32px">Solutions already exist for this, such as BlueAlpha, Measured and Dreamdata, yet <span class="hl solar">the pain remains</span>, and it may be the most urgent one.</p>
+      `,
+    notes: `Only 52% of senior marketing leaders say they can prove marketing's value and get credit for its contribution to results. 40% name the CFO as the most skeptical. Only 27% of CEOs and CFOs say the CMO beat expectations last year. Only 34% agree with the CMO on how marketing supports growth. In paid media, 15% say evidence drives budgets, and 14% say marketing and finance agree on what effectiveness means. Solutions exist, like BlueAlpha, Measured and Dreamdata. The pain remains, and it may be the most urgent one.`,
+    pres: ''
+  },
+  {
+    kicker: 'Market', plan: 40, src: 'Estimate from public data (IBGE CEMPRE 2024; Cetic.br TIC Empresas 2025). Not a measure of demand.',
+    title: 'Our beachhead: B2B software, data and IT companies in Brazil.',
+    render: d => {
+      const rows = [
+        { n: '~4,000', c: 4000, w: 100, cls: '', tag: 'TAM estimate', s: 'Brazilian B2B software, data and IT companies with 20 to 200 employees' },
+        { n: '~600', c: 600, w: 70, cls: ' f2', tag: 'SAM estimate', s: 'We target companies with a formal marketing team' },
+        { n: '~18', c: 18, w: 40, cls: ' f3', tag: 'SOM capacity ceiling', s: `18 accounts per year, about €${d.target.somEurYear}k, provisional` }
+      ];
+      return `
+        ${H('Market')}
+        <h1 class="long rv">Our beachhead: B2B software, data and IT companies in Brazil.</h1>
+        <div class="funnel">
+          <div class="fcol">${rows.map(r => `<div class="fbar rv${r.cls}" style="--fw:${r.w}%"><b data-count="${r.c}" data-prefix="~" data-dec="0">${r.n}</b></div>`).join('')}</div>
+          <div class="flabs">${rows.map(r => `<div class="flab rv"><span class="fest">${r.tag}</span><span>${r.s}</span></div>`).join('')}</div>
+        </div>
+        <p class="muted rv" style="font-size:28px;margin:30px 0 0">TAM and SAM are company estimates, not demand. Price and conversion are not yet tested.</p>`;
+    },
+    notes: `We estimate about 4,000 of these companies have 20 to 200 employees, and about 600 have a formal marketing team. Our provisional capacity ceiling is about 18 accounts a year, around 106,000 euros. These are company counts, not a measure of demand. Price and conversion are not yet tested. Portugal and the EU come later.`,
+    pres: ''
+  },
+  {
+    kicker: 'Traction', plan: 50, heroLeft: true, src: '',
+    title: 'Early traction.',
+    render: d => `
+      <div style="margin-left:654px;position:relative">
+        ${H('Traction')}
+        <h1 class="long rv">Early traction.</h1>
+        <div class="stats" style="margin-top:20px">
+          <div class="stat hi rv" style="padding:18px 26px"><b data-count="${d.traction.receivedEur}" data-dec="1" data-prefix="€" data-suffix="k" style="font-size:100px">€${d.traction.receivedEur}k</b><span style="font-size:26px">received from May to September 2026</span></div>
+          <div class="stat rv" style="padding:18px 26px"><b data-count="${d.traction.engagements}" data-dec="0" style="font-size:100px">${d.traction.engagements}</b><div style="font-size:26px;color:var(--g700);margin-top:14px;line-height:1.3">paid engagements delivered in 2026: a diagnosis, training and a custom system</div></div>
+        </div>
+        <div class="card rv" style="margin-top:22px;padding:18px 28px;display:flex;align-items:center;gap:36px">
+          
+          <div style="flex:1;min-width:0">
+          <div class="label" style="font-size:22px">Built over the last 12 months on Pedro's <span class="hl solar">LinkedIn profile</span></div>
+          <div style="display:flex;gap:44px;margin-top:10px">
+            <div><b style="font-family:var(--display);font-weight:400;font-size:72px;line-height:.95">${d.audience.followers}</b><div style="font-size:24px;color:var(--g700)">followers</div></div>
+            <div><b style="font-family:var(--display);font-weight:400;font-size:72px;line-height:.95">${d.audience.impressions}</b><div style="font-size:24px;color:var(--g700)">impressions</div></div>
+            <div><b style="font-family:var(--display);font-weight:400;font-size:72px;line-height:.95">${d.audience.engagements}</b><div style="font-size:24px;color:var(--g700)">engagements</div></div>
+          </div>
+          <div class="label" style="font-size:22px;margin-top:18px">Qualified audience</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px 36px;margin-top:6px;font-size:24px;color:var(--g700);line-height:1.25">
+            <span><b>${d.audience.senior}%</b> senior</span>
+            <span><b>${d.audience.saoPauloRioJaneiro}%</b> in São Paulo and Rio de Janeiro</span>
+            <span><b>${d.audience.marketing}%</b> in marketing</span>
+            <span><b>${d.audience.companies11to200}%</b> at companies with 11 to 200 employees</span>
+          </div>
+          </div>
+        </div>
+        <p class="muted rv" style="font-size:26px;margin:18px 0 0">We have started to turn part of that service into a B2B AaaS product.</p>
+      </div>
+      <img class="hero-img rv" src="assets/cientista-laboratorio.png" alt="Retro-futurist scientist pouring a yellow liquid into a glowing blue flask">`,
+    notes: `Here are our numbers so far. From May to September 2026, we received about 4,700 euros. In 2026, we delivered 3 paid engagements: a diagnosis, training and a custom system. We have started to turn part of that service into a B2B AaaS product. Over the last year, Pedro's LinkedIn profile built 17k followers, almost 1M impressions and 31k engagements. Our audience is qualified: 37% senior, 18% in marketing, 27% at companies with 11 to 200 employees, and 30% in São Paulo and Rio de Janeiro. Favikon named Pedro one of Portugal's Top 200 LinkedIn Voices in 2026.`,
+    pres: ''
+  },
+  {
+    kicker: 'Why now, why us', plan: 25, src: '<span style="font-size:18px;line-height:1.35">¹ Cetic.br, TIC Empresas 2025 (n=4,174).<br>² Our estimate: 2024–25 growth rate held (+31%). Not a forecast.<br>³ IDC, Predictions Brazil 2026, via press coverage.</span>',
+    title: 'Why now, why us.',
+    render: d => `
+      ${H('Why now, why us')}
+      <h1 class="rv">Why now, why us.</h1>
+      <div class="grid2" style="margin-top:30px;flex:1;min-height:0">
+        <div>
+          <div class="label rv">Companies with more than 10 employees that use AI, Brazil<sup>1</sup></div>
+          <div class="bars" style="display:flex;align-items:flex-end;gap:50px;height:370px;margin-top:20px;padding-left:40px;border-bottom:3px solid var(--g900)">
+            <div class="bar-col" style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%"><div class="val" data-count="13" data-dec="0" data-suffix="%" style="font-family:var(--display);font-size:150px;line-height:.9;margin-bottom:14px">13%</div><div class="bar-rect" style="--h:95px;width:200px;background:var(--cyan-500);transition:height 1.2s var(--ease-out) .4s"></div><div class="year" style="font-size:30px;margin-top:14px;margin-bottom:6px">2024</div></div>
+            <div class="bar-col" style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%"><div class="val" data-count="17" data-dec="0" data-suffix="%" style="font-family:var(--display);font-size:150px;line-height:.9;margin-bottom:14px">17%</div><div class="bar-rect" style="--h:124px;width:200px;background:var(--solar);transition:height 1.2s var(--ease-out) .6s"></div><div class="year" style="font-size:30px;margin-top:14px;margin-bottom:6px">2025</div></div>
+            <div class="bar-col" style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%"><div class="val" data-count="22" data-dec="0" data-suffix="%" style="font-family:var(--display);font-size:150px;line-height:.9;margin-bottom:14px">22%</div><div class="bar-rect" style="--h:160px;width:200px;background:repeating-linear-gradient(45deg,var(--cyan-500) 0 12px,var(--cyan-100) 12px 22px);border:3px dashed var(--cyan-700);transition:height 1.2s var(--ease-out) .8s"></div><div class="year" style="font-size:30px;margin-top:14px;margin-bottom:6px">2026 est.<sup>2</sup></div></div>
+          </div>
+          <p class="muted rv" style="font-size:18px;line-height:1.35;margin:16px 0 0">Firms with 250+ employees: 38% to 50% in 2025.<sup>1</sup> IDC: AI spending in Brazil up 30%+ in 2026.<sup>3</sup></p>
+        </div>
+        <div>
+          <div class="label rv">Why us</div>
+          <ul class="quote-list compact" style="margin-top:20px">
+            <li class="rv"><b class="mk" style="--mk-d:1.2s">11+</b> years in marketing, plus entrepreneurial experience.</li>
+            <li class="rv"><b class="mk" style="--mk-d:1.6s">2+</b> years studying, testing and building with AI, daily.</li>
+            <li class="rv"><b class="mk" style="--mk-d:2s">2</b> years as Head of Marketing for Portugal at a multinational, held by Pedro.</li>
+            <li class="rv"><b class="mk" style="--mk-d:2.4s">Both</b> Brazilian, and we have lived in Portugal for five years.</li>
+            <li class="rv"><b class="mk" style="--mk-d:2.8s">${PROD}</b> is a niche-down strategy: state-of-the-art technology solving a timeless marketing problem we understand and have felt first-hand.</li>
+            <li class="rv"><b class="mk" style="--mk-d:3.2s">Scalable</b>, yet with a hard-to-replicate service layer, built on experience, that shields Atomica.</li>
+          </ul>
+        </div>
+      </div>`,
+    notes: `Why now: AI use among Brazilian companies with more than 10 employees rose from 13% in 2024 to 17% in 2025, according to Cetic.br. At firms with more than 250 employees, it rose from 38% to 50%. If that pace holds, 2026 is about 22%, our estimate, not a forecast. We have 11+ years in marketing, plus entrepreneurial experience, and 2+ years building with AI, daily. Pedro was Head of Marketing for Portugal at a multinational for 2 years. AndROI is a niche-down strategy: state-of-the-art technology for a timeless marketing problem we have felt first-hand. It scales, and keeps a hard-to-replicate service layer that shields Atomica.`,
+    pres: ''
+  },
+  {
+    kicker: 'Team', plan: 75, src: '',
+    title: 'Team, and the gap we are closing.',
+    render: d => `
+      ${H('Team')}
+      <h1 class="long rv">Team, and the gap we are closing.</h1>
+      <div class="grid3 team" style="margin-top:20px">
+        <div class="card rv"><span class="team-photo team-initial" aria-hidden="true">P</span><div><h3>Pedro</h3><p>Marketing and sales.</p></div></div>
+        <div class="card rv"><span class="team-photo team-initial" aria-hidden="true">A</span><div><h3>Arthur</h3><p>Delivery, back-office, project management and HR.</p></div></div>
+        <div class="card rv"><span class="team-photo team-initial" aria-hidden="true">G</span><div><h3>Guilherme</h3><p>Infrastructure, security and data. Part-time.</p></div></div>
+      </div>
+      <p class="label rv" style="text-align:center;margin:14px 0 0">We all build agentic systems together.</p>
+      <div style="display:flex;align-items:center;gap:40px;margin-top:18px;flex:1;min-height:0">
+        <div style="display:flex;align-items:center;gap:24px;flex:none">
+          <img class="architecture-img rv" src="assets/androi-architecture.png" alt="AndROI architecture: the AI OS Harness connects the product components, surrounded by diagnostic, setup and training services" style="width:auto;height:376px;margin:0;flex:none">
+          <div class="rv" style="display:grid;grid-template-columns:150px 110px;grid-template-rows:auto 48px 48px auto auto;row-gap:8px;justify-items:center;align-items:center;width:260px">
+            <span style="grid-column:1;grid-row:1;font-size:26px;color:var(--g700)">input</span>
+            <svg class="flow" viewBox="0 0 120 60" aria-hidden="true" style="grid-column:1;grid-row:2;width:136px;height:48px"><path pathLength="1" d="M112 30 H16 M32 13 L12 30 L32 47" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <svg class="flow" viewBox="0 0 120 60" aria-hidden="true" style="grid-column:1;grid-row:3;width:136px;height:48px"><path pathLength="1" d="M8 30 H104 M88 13 L108 30 L88 47" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span style="grid-column:1;grid-row:4;font-size:26px;color:var(--g700)">output</span>
+            <div style="grid-column:2;grid-row:2 / span 2;display:flex;flex-direction:column;align-items:center;justify-content:space-between">
+              <svg viewBox="0 0 48 48" aria-hidden="true" style="width:70px;height:70px;fill:none;stroke:var(--cyan-900);stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round">${ICON_PATHS.user}</svg>
+              <span style="font-size:28px;line-height:1;color:var(--g900)">CMO</span>
+            </div>
+            <span style="grid-column:1 / span 2;grid-row:5;font-size:22px;color:var(--g500);margin-top:12px">conversational interactions</span>
+          </div>
+        </div>
+        <div class="card hi rv" style="flex:1;min-width:0">
+          <h3><span class="gap-dot"></span>Scalability: the gap</h3>
+          <p style="font-size:28px">Our service work showed where scale becomes difficult.<br>We started AndROI to make repeated work scalable, so we can do even more with fewer resources.</p>
+        </div>
+      </div>`,
+    notes: `Pedro leads marketing and sales. Arthur runs delivery, back-office, project management and HR. Guilherme, part-time, covers infrastructure, security and data. We all build agentic systems together. This is AndROI's architecture. At the core, the AI OS Harness connects agents, skills, data, memory and routines, with model routing and a self-improvement loop. Around that product layer sits our service layer: diagnostic, setup and training. Our service work showed where scale gets hard, so we started AndROI to make repeated work scalable.`,
+    pres: ''
+  },
+  {
+    kicker: 'Where we are going', plan: 55, src: '',
+    title: 'A target of about nine thousand euros billed a month.',
+    render: d => {
+      const s = d.split;
+      const taxes = s.ss + s.tax;
+      return `
+        ${H('Where we are going')}
+        <h1 class="long rv" style="font-size:88px">A target of about <span class="mk" style="--mk-d:1.4s">€9k billed a month</span>.</h1>
+        <div class="s12">
+          <div>
+            <div class="label rv" style="letter-spacing:.08em">Where each euro goes, on average</div>
+            <div class="stack sm rv" style="margin-top:22px;height:100px">
+              <div class="seg taxes" style="--w:${taxes}%;--sd:.2s">Taxes ${taxes}%</div>
+              <div class="seg partners" style="--w:${s.partners}%;--sd:.5s">Partners, net ${s.partners}%</div>
+              <div class="seg costs" style="--w:${s.costs}%;--sd:.8s"></div>
+              <div class="seg reinvest" style="--w:${s.reinvest}%;--sd:1.1s">${s.reinvest}%</div>
+            </div>
+            <div class="legend rv" style="flex-direction:column;gap:10px;margin-top:20px;font-size:28px">
+              <span><i style="background:var(--g700)"></i>Social security ${s.ss}% + income tax ${s.tax}%</span>
+              <span><i style="background:var(--cyan-500)"></i><span style="display:block">Partners, net ${s.partners}%<small style="display:block;margin-top:4px;font-size:20px;line-height:1.2;color:var(--g500)">That share sustains the team's work and keeps the project moving.</small></span></span>
+              <span><i style="background:var(--g300)"></i>Operating costs ${s.costs}%</span>
+              <span><i style="background:var(--solar)"></i>Runway and reinvestment ${s.reinvest}%</span>
+            </div>
+            <div class="label rv" style="margin-top:30px">Next steps</div>
+            <div class="chips rv" style="margin-top:16px">
+              <span class="chip">Developer</span><span class="chip">Salesperson</span><span class="chip">AI usage and infrastructure</span>
+            </div>
+          </div>
+          <div class="rv">
+            <div class="label" style="letter-spacing:.08em">2027 billing path · monthly billed</div>
+            ${chart27()}
+            <div class="legend" style="margin-top:18px">
+              <span><i style="background:var(--cyan-900)"></i>New business (setup)</span>
+              <span><i style="background:var(--red-700)"></i>Farming (monthly retainer)</span>
+            </div>
+            <div class="card hi" style="margin-top:18px;padding:16px 28px">
+              <p style="font-size:26px;margin:0;display:flex;align-items:center;gap:16px"><svg viewBox="0 0 48 48" aria-hidden="true" style="width:54px;height:54px;flex:none;fill:none;stroke:var(--cyan-900);stroke-width:3;stroke-linecap:round;stroke-linejoin:round">${ICON_PATHS.bar}</svg><span><b>Current resources:</b> ${d.target.somAccounts} accounts, about €${d.target.planEurYear}k a year.</span></p>
+              <p style="font-size:26px;margin:8px 0 0;display:flex;align-items:center;gap:16px"><svg viewBox="0 0 48 48" aria-hidden="true" style="width:54px;height:54px;flex:none;fill:none;stroke:var(--g900);stroke-width:3;stroke-linecap:round;stroke-linejoin:round">${ICON_PATHS.dashline}</svg><span><b>More resources:</b> ${d.target.moreAccounts} accounts, about €${d.target.moreEurYear}k a year. A hypothesis we would test.</span></p>
+            </div>
+          </div>
+        </div>`;
+    },
+    notes: `Our target: about 9,000 euros billed per month in 2027, roughly 107,000 euros for the year. It is a target, not a forecast. We don't have a pipeline yet. Of each euro: 28% taxes, 50% partners, 2.8% operating costs, 19.2% runway and reinvestment. The partners' 50% sustains the team's work and keeps the project moving. The model assumes a 430-euro monthly retainer per setup and 5% monthly churn. Both are hypothetical. With one more developer, one salesperson and more investment in AI and infrastructure, it reaches about 161,000 euros a year with 27 accounts. That is a hypothesis we would test. Our next priorities: a developer, a salesperson, and more investment in AI and infrastructure.`,
+    pres: ''
+  }
+];
+
+/* =====================================================================
+   Engine — render, navigation, motion, presenter view, sync, timer, scaling
+   ===================================================================== */
+const $ = s => document.querySelector(s);
+const N = SLIDES.length;
+const IS_PRESENTER = new URLSearchParams(location.search).get('presenter') === '1';
+const cum = SLIDES.reduce((acc, s, i) => (acc.push(i ? acc[i - 1] + SLIDES[i - 1].plan : 0), acc), []);
+const TOTAL = SLIDES.reduce((t, s) => t + s.plan, 0);
+const fmt = sec => `${Math.floor(sec / 60)}:${String(Math.floor(sec % 60)).padStart(2, '0')}`;
+let idx = 0;
+const chan = 'BroadcastChannel' in window ? new BroadcastChannel('atomica-pitch') : null;
+
+function renderSlides() {
+  $('#stage').innerHTML = SLIDES.map((s, i) => `
+    <section class="slide${s.paper ? ' paper' : ''}${s.heroLeft ? ' hero-left' : ''}${s.edge ? ' edge-half' : ''}" data-i="${i}">
+      <div class="bar" style="--w:${((i + 1) / N * 100).toFixed(1)}%"></div>
+      <div class="brand"><img class="mark" src="assets/logo-mark.png" alt="">${DATA.companyName.toUpperCase()}</div>
+      <div class="counter">${String(i + 1).padStart(2, '0')} / ${N}</div>
+      ${s.render(DATA)}
+      <div class="foot rv"><span>${s.src || ''}</span><span></span></div>
+    </section>`).join('');
+
+  // Stagger: every .rv element in a slide enters in document order, 90 ms apart, capped at 900 ms.
+  document.querySelectorAll('.slide').forEach(slide =>
+    slide.querySelectorAll('.rv').forEach((el, k) => el.style.setProperty('--d', Math.min(k * 90, 900) + 'ms')));
+
+  const v = document.querySelector('.video-box video');
+  if (v) v.addEventListener('error', () => v.closest('.video-box').classList.add('missing'));
+  document.querySelectorAll('.slide img').forEach(img => img.addEventListener('error', () => {
+    if (img.classList.contains('atom')) return img.remove();
+    img.replaceWith(Object.assign(document.createElement('span'), { className: 'muted', textContent: 'screenshot not found' }));
+  }));
+}
+
+/* Count-up for [data-count]. Final text is already in the markup, so print and reduced motion show the right value. */
+function countUp(el) {
+  if (el.dataset.done || REDUCED) return;
+  el.dataset.done = '1';
+  const to = parseFloat(el.dataset.count), dec = +(el.dataset.dec || 0);
+  const pre = el.dataset.prefix || '', suf = el.dataset.suffix || '';
+  const fmtNum = v => v.toLocaleString('en-US', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+  const t0 = performance.now(), D = 1400;
+  const step = now => {
+    const p = Math.min(1, (now - t0) / D), e = 1 - Math.pow(1 - p, 3);
+    el.textContent = pre + fmtNum(to * e) + suf;
+    if (p < 1) requestAnimationFrame(step);
+  };
+  el.textContent = pre + fmtNum(0) + suf;
+  requestAnimationFrame(step);
+}
+
+function go(i, send = true) {
+  idx = Math.max(0, Math.min(N - 1, i));
+  document.querySelectorAll('.slide').forEach((el, k) => el.classList.toggle('active', k === idx));
+  document.querySelectorAll('.slide.active [data-count]').forEach(countUp);
+  history.replaceState(null, '', '#' + (idx + 1));
+  if (send && chan) chan.postMessage({ i: idx });
+  updatePresenter();
+}
+
+function updatePresenter() {
+  const s = SLIDES[idx], nx = SLIDES[idx + 1];
+  $('#p-count').textContent = `${idx + 1} / ${N}`;
+  $('#p-kicker').textContent = s.kicker;
+  $('#p-title').textContent = s.title;
+  $('#p-notes').innerHTML = prodify(s.notes);
+  $('#p-pres').innerHTML = s.pres ? prodify('Check: ' + s.pres) : '';
+  $('#p-next').innerHTML = nx ? `<span class="label">${nx.kicker}</span><br>${nx.title}` : 'End of deck';
+  $('#p-plan').textContent = `planned at this slide ${fmt(cum[idx])} · target ${fmt(TOTAL)}`;
+  tick();
+}
+
+let t0 = Date.now();
+function tick() {
+  const el = (Date.now() - t0) / 1000;
+  const t = $('#p-timer');
+  t.textContent = fmt(el);
+  t.className = el > cum[idx] + 90 ? 'late' : el > cum[idx] + 30 ? 'warn' : '';
+  $('#p-clock').textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+function videoPlayable() {
+  const box = document.querySelectorAll('.slide')[idx].querySelector('.video-box');
+  return box && !box.classList.contains('missing') ? box.querySelector('video') : null;
+}
+
+function openPresenter() {
+  const base = location.href.split('#')[0].split('?')[0];
+  const w = window.open(base + '?presenter=1#' + (idx + 1), 'atomica-presenter', 'width=1400,height=860');
+  if (!w) document.body.classList.toggle('presenter-overlay');
+}
+
+function fit() {
+  const s = Math.min(innerWidth / 1920, innerHeight / 1080);
+  $('#stage').style.transform = `scale(${s})`;
+}
+
+/* ---------- wiring ---------- */
+if (chan) chan.onmessage = e => { if (e.data && typeof e.data.i === 'number') go(e.data.i, false); };
+addEventListener('resize', fit);
+addEventListener('beforeprint', () => { document.querySelectorAll('.slide').forEach(el => el.classList.add('active')); fit(); });
+addEventListener('afterprint', () => go(idx, false));
+
+let buf = '', bufTimer = null;
+document.addEventListener('keydown', e => {
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  const k = e.key;
+  if (/^[0-9]$/.test(k)) {
+    buf += k; clearTimeout(bufTimer); bufTimer = setTimeout(() => buf = '', 2000); return;
+  }
+  if (k === 'Enter' && buf) { go(parseInt(buf, 10) - 1); buf = ''; return; }
+  if (k === ' ' && videoPlayable()) { e.preventDefault(); const v = videoPlayable(); v.paused ? v.play() : v.pause(); return; }
+  if (['ArrowRight', 'ArrowDown', 'PageDown', ' '].includes(k)) { e.preventDefault(); go(idx + 1); return; }
+  if (['ArrowLeft', 'ArrowUp', 'PageUp', 'Backspace'].includes(k)) { e.preventDefault(); go(idx - 1); return; }
+  if (k === 'Home') return go(0);
+  if (k === 'End') return go(N - 1);
+  if (k === '?') return $('#help').classList.toggle('show');
+  if (k === 'Escape') return $('#help').classList.remove('show');
+  if (k === 'f' || k === 'F') return document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.();
+  if (k === 's' || k === 'S') return IS_PRESENTER ? null : openPresenter();
+  if (k === 'p' || k === 'P') return window.print();
+  if (k === 'r' || k === 'R') { t0 = Date.now(); tick(); }
+});
+
+/* ---------- boot ---------- */
+renderSlides();
+fit();
+if (IS_PRESENTER) {
+  document.body.classList.add('presenter');
+  t0 = Date.now();
+  setInterval(tick, 1000);
+}
+const start = parseInt(location.hash.slice(1), 10);
+go(start ? start - 1 : 0, false);
+</script>
+</body>
+</html>
